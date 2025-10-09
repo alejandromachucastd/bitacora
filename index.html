@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Café - Sistema de Gestión | STD TEC 2025</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>🖥️ BITACORA V1.0 STD TEC</h1>
+            <div class="header-info">
+                <span id="currentTime"></span>
+                <button id="lockButton" class="theme-toggle" onclick="bloquearSistema()" title="Bloquear sistema">
+                    <span>🔒</span>
+                </button>
+                <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <!-- Total del Día -->
+        <div class="sidebar-total">
+            <div class="total-label">💰 Total del Día</div>
+            <div class="total-amount" id="sidebarTotal">$0.00</div>
+            
+            <!-- Meta Diaria -->
+            <div class="meta-progress">
+                <div class="meta-info">
+                    <span>🎯 Meta: $<span id="sidebarMeta">0</span></span>
+                    <span id="sidebarPorcentaje">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="sidebarProgress" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- Botones de Acción -->
+            <div class="sidebar-actions">
+                <button class="sidebar-btn btn-corte-sidebar" id="btnCorte">
+                    📊 Corte Diario
+                </button>
+                <button class="sidebar-btn btn-limpiar-sidebar" onclick="mostrarModalLimpiarDia()">
+                    🗑️ Limpiar Día
+                </button>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <button class="nav-item active" data-section="dashboard">
+                <span>📊</span> Dashboard
+            </button>
+            <button class="nav-item" data-section="equipos">
+                <span>💻</span> Equipos
+            </button>
+            <button class="nav-item" data-section="tramites">
+                <span>📋</span> Trámites
+            </button>
+            <button class="nav-item" data-section="impresiones">
+                <span>🖨️</span> Impresiones/Escaneos
+            </button>
+            <button class="nav-item" data-section="papeleria">
+                <span>📦</span> Papelería
+            </button>
+            <button class="nav-item" data-section="gastos">
+                <span>💸</span> Gastos
+            </button>
+            <button class="nav-item" data-section="reportes">
+                <span>📊</span> Reportes
+            </button>
+            <button class="nav-item" data-section="admin">
+                <span>⚙️</span> Administración
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Sección Dashboard -->
+        <section id="dashboard" class="section active">
+            <div class="section-header">
+                <h2>📊 Dashboard</h2>
+            </div>
+
+            <!-- Estadísticas Principales -->
+            <div class="stats-grid">
+                <div class="stat-card animate-in">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3>Total del Día</h3>
+                        <div class="stat-value">$<span id="dashTotalDia">0</span></div>
+                        <div class="stat-change positive">+<span id="dashCambio">0</span>% vs ayer</div>
+                    </div>
+                </div>
+
+                <div class="stat-card animate-in" style="animation-delay: 0.1s">
+                    <div class="stat-icon">💵</div>
+                    <div class="stat-content">
+                        <h3>Cambio del Día</h3>
+                        <div class="stat-value">$<span id="montoCambioHoyDashboard">100.00</span></div>
+                        <div class="stat-label" id="cambioEstadoDashboard">
+                            <span id="horaCambioDashboard">por defecto</span>
+                            <button id="btnAgregarCambioDashboard" class="btn-cambio-simple" onclick="mostrarModalCambio()">
+                                + Agregar
+                            </button>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card animate-in" style="animation-delay: 0.2s">
+                    <div class="stat-icon">💻</div>
+                    <div class="stat-content">
+                        <h3>Equipos Activos</h3>
+                        <div class="stat-value"><span id="dashEquiposActivos">0</span>/<span id="dashTotalEquipos">0</span></div>
+                        <div class="stat-label">equipos en uso</div>
+                    </div>
+                </div>
+
+                <div class="stat-card animate-in" style="animation-delay: 0.3s">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-content">
+                        <h3>Ventas Hoy</h3>
+                        <div class="stat-value"><span id="dashVentasHoy">0</span></div>
+                        <div class="stat-label">transacciones</div>
+                    </div>
+                </div>
+
+                <div class="stat-card animate-in" style="animation-delay: 0.4s">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-content">
+                        <h3>Stock Bajo</h3>
+                        <div class="stat-value"><span id="dashStockBajo">0</span></div>
+                        <div class="stat-label">productos</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actividad Reciente -->
+            <div class="dashboard-row">
+                <div class="dashboard-card">
+                    <h3>🔥 Actividad Reciente</h3>
+                    <div id="actividadReciente" class="actividad-lista"></div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>⏱️ Equipos en Uso</h3>
+                    <div id="equiposEnUso" class="equipos-activos-lista"></div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Ventas del Día -->
+            <div class="dashboard-card">
+                <h3>📈 Resumen de Ventas</h3>
+                <div class="ventas-chart">
+                    <div class="chart-bar">
+                        <div class="chart-label">Equipos</div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-fill" id="chartEquipos" style="width: 0%"></div>
+                            <span class="chart-value">$<span id="chartEquiposVal">0</span></span>
+                        </div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">Trámites</div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-fill" id="chartTramites" style="width: 0%"></div>
+                            <span class="chart-value">$<span id="chartTramitesVal">0</span></span>
+                        </div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">Impresiones</div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-fill" id="chartImpresiones" style="width: 0%"></div>
+                            <span class="chart-value">$<span id="chartImpresionesVal">0</span></span>
+                        </div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">Papelería</div>
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-fill" id="chartPapeleria" style="width: 0%"></div>
+                            <span class="chart-value">$<span id="chartPapeleriaVal">0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Equipos -->
+        <section id="equipos" class="section">
+            <div class="section-header">
+                <h2>Equipos Cyber</h2>
+                <div class="summary">
+                    <span>Libres: <strong id="equiposLibres">0</strong></span>
+                    <span>Ocupados: <strong id="equiposOcupados">0</strong></span>
+                </div>
+            </div>
+            <div id="equiposGrid" class="equipos-grid"></div>
+        </section>
+
+        <!-- Sección Trámites -->
+        <section id="tramites" class="section">
+            <div class="section-header">
+                <h2>Trámites</h2>
+            </div>
+
+            <!-- Selector de Trámite para Venta Rápida -->
+            <div class="venta-rapida-container">
+                <h3>Venta Rápida</h3>
+                <div class="venta-rapida-form">
+                    <select id="tramiteVentaRapida" class="select-tramite">
+                        <option value="">Seleccionar trámite...</option>
+                    </select>
+                    <input type="number" id="cantidadVentaRapida" min="1" value="1" placeholder="Cantidad" class="input-cantidad">
+                    <button class="btn-success" onclick="ventaRapidaTramite()">Vender</button>
+                </div>
+            </div>
+
+            <div class="ventas-hoy">
+                <h3>Ventas de Hoy</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Trámite</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ventasTramitesHoy"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Impresiones/Escaneos -->
+        <section id="impresiones" class="section">
+            <div class="section-header">
+                <h2>Impresiones y Escaneos</h2>
+            </div>
+
+            <!-- Venta Rápida de Impresiones -->
+            <div class="venta-rapida-container">
+                <h3>Venta Rápida</h3>
+                <div class="venta-rapida-form">
+                    <select id="impresionVentaRapida" class="select-tramite">
+                        <option value="">Seleccionar servicio...</option>
+                        <option value="impresion_bn">🖨️ Impresión B/N - $1.00</option>
+                        <option value="impresion_color_1">🎨 Impresión Color Cal. 1 - $3.00</option>
+                        <option value="impresion_color_2">🎨 Impresión Color Cal. 2 - $5.00</option>
+                        <option value="impresion_color_3">🎨 Impresión Color Cal. 3 - $7.00</option>
+                        <option value="escaneo">📄 Escaneo - $4.00</option>
+                    </select>
+                    <input type="number" id="cantidadImpresionRapida" min="1" value="1" placeholder="Hojas" class="input-cantidad">
+                    <button class="btn-success" onclick="ventaRapidaImpresion()">Vender</button>
+                </div>
+            </div>
+
+            <div class="impresiones-container">
+                <div class="precios-base">
+                    <h3>Precios Base</h3>
+                    <p>Impresión: <strong>$1</strong> por hoja</p>
+                    <p>Escaneo: <strong>$4</strong> por hoja</p>
+                    <p>Impresión Color Calidad 1: <strong>$3</strong> por hoja</p>
+                    <p>Impresión Color Calidad 2: <strong>$5</strong> por hoja</p>
+                    <p>Impresión Color Calidad 3: <strong>$7</strong> por hoja</p>
+                </div>
+                <div class="promociones">
+                    <h3>Promociones Activas</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Cantidad Mín.</th>
+                                    <th>Precio c/u</th>
+                                </tr>
+                            </thead>
+                            <tbody id="promocionesLista"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="ventas-hoy">
+                <h3>Ventas de Hoy</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Equipo</th>
+                                <th>Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ventasImpresionesHoy"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Papelería -->
+        <section id="papeleria" class="section">
+            <div class="section-header">
+                <h2>Papelería e Inventario</h2>
+                <button class="btn-primary" onclick="mostrarModalVentaPapeleria()">+ Registrar Venta</button>
+            </div>
+            <div class="search-container">
+                <input type="text" id="searchPapeleria" placeholder="Buscar producto..." class="search-input">
+            </div>
+            <div class="table-container">
+                <table class="data-table" id="papeleriaTable">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="papeleriaTableBody"></tbody>
+                </table>
+            </div>
+            <div class="ventas-hoy">
+                <h3>Ventas de Hoy</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Total</th>
+                                <th>Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ventasPapeleriaHoy"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Gastos -->
+        <section id="gastos" class="section">
+            <div class="section-header">
+                <h2>Gastos del Día</h2>
+                <button class="btn-primary" onclick="mostrarModalGasto()">+ Agregar Gasto</button>
+            </div>
+            <div class="gastos-summary">
+                <h3>Total Gastos: $<span id="totalGastos">0</span></h3>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>Categoría</th>
+                            <th>Monto</th>
+                            <th>Hora</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gastosLista"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Sección Reportes -->
+        <section id="reportes" class="section">
+            <div id="reportesLogin" class="admin-login">
+                <div class="login-box">
+                    <h2>🔒 Acceso a Reportes</h2>
+                    <p>Ingresa la contraseña para acceder</p>
+                    <form onsubmit="verificarAccesoReportes(event)">
+                        <input type="password" id="reportesPassword" placeholder="Contraseña" class="admin-password-input" required>
+                        <button type="submit" class="btn-primary">Acceder</button>
+                    </form>
+                </div>
+            </div>
+            <div id="reportesPanel" class="admin-panel" style="display:none;">
+            <div class="section-header">
+                <h2>Reportes y Cortes</h2>
+                <button class="btn-danger" onclick="cerrarSesionReportes()">Cerrar Sesión</button>
+            </div>
+            <div class="reporte-actual">
+                <h3>Resumen del Día</h3>
+                <div class="resumen-grid">
+                    <div class="resumen-item">
+                        <span>Equipos</span>
+                        <strong>$<span id="totalEquipos">0</span></strong>
+                    </div>
+                    <div class="resumen-item">
+                        <span>Trámites</span>
+                        <strong>$<span id="totalTramites">0</span></strong>
+                    </div>
+                    <div class="resumen-item">
+                        <span>Impresiones</span>
+                        <strong>$<span id="totalImpresiones">0</span></strong>
+                    </div>
+                    <div class="resumen-item">
+                        <span>Papelería</span>
+                        <strong>$<span id="totalPapeleria">0</span></strong>
+                    </div>
+                    <div class="resumen-item">
+                        <span>Gastos</span>
+                        <strong class="text-red">-$<span id="totalGastosReporte">0</span></strong>
+                    </div>
+                    <div class="resumen-item total">
+                        <span>Total Neto</span>
+                        <strong>$<span id="totalNeto">0</span></strong>
+                    </div>
+                </div>
+            </div>
+            <!-- Gráficas Comparativas -->
+            <div class="graficas-section">
+                <h3>📊 Análisis y Gráficas</h3>
+                
+                <div class="graficas-grid">
+                    <!-- Gráfica de Comparación Mensual -->
+                    <div class="grafica-card">
+                        <h4>Comparación Últimos 7 Días</h4>
+                        <canvas id="chartUltimos7Dias"></canvas>
+                    </div>
+                    
+                    <!-- Gráfica de Distribución -->
+                    <div class="grafica-card">
+                        <h4>Distribución de Ingresos</h4>
+                        <canvas id="chartDistribucion"></canvas>
+                    </div>
+                </div>
+                
+                <div class="graficas-grid">
+                    <!-- Gráfica de Tendencia -->
+                    <div class="grafica-card">
+                        <h4>Tendencia del Mes</h4>
+                        <canvas id="chartTendencia"></canvas>
+                    </div>
+                    
+                    <!-- Gráfica vs Meta -->
+                    <div class="grafica-card">
+                        <h4>Progreso vs Meta Diaria</h4>
+                        <canvas id="chartVsMeta"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totales Mensuales -->
+            <div class="totales-mensuales">
+                <div id="totalesPorMes"></div>
+            </div>
+
+            <!-- Total General de Todos los Cortes -->
+            <div class="total-general-cortes">
+                <h3>💰 Total General de Todos los Cortes</h3>
+                <div class="total-general-card">
+                    <div class="total-general-info">
+                        <span>Total Acumulado:</span>
+                        <strong id="totalGeneralCortes">$0.00</strong>
+                    </div>
+                    <div class="total-general-info">
+                        <span>Total de Cortes:</span>
+                        <strong id="cantidadTotalCortes">0</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cambio Diario -->
+            <div class="cambio-diario-section">
+                <h3>💵 Cambio del Día</h3>
+                <div class="cambio-card">
+                    <div id="cambioEstado">
+                        <p>El cambio solo se puede registrar entre las 7:00 AM y 9:00 AM</p>
+                    </div>
+                    <button id="btnAgregarCambio" class="btn-primary" onclick="mostrarModalCambio()" style="display:none;">
+                        + Agregar Cambio del Día
+                    </button>
+                    <div id="cambioRegistrado" style="display:none;">
+                        <div class="cambio-info">
+                            <span>Cambio registrado hoy:</span>
+                            <strong id="montoCambioHoy">$0.00</strong>
+                        </div>
+                        <small id="horaCambio" style="color: var(--text-secondary);"></small>
+                    </div>
+                </div>
+                
+                <!-- Historial de Cambios -->
+                <div class="historial-cambios">
+                    <h4>📋 Historial de Cambios (Últimos 7 días)</h4>
+                    <div id="historialCambios"></div>
+                </div>
+            </div>
+
+            <div class="historial-cortes">
+                <h3>Historial de Cortes</h3>
+                <div id="historialCortes"></div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Sección Administración -->
+        <section id="admin" class="section">
+            <div id="adminLogin" class="admin-login">
+                <div class="login-box">
+                    <h2>🔒 Acceso Administrativo</h2>
+                    <p>Ingresa la contraseña para acceder</p>
+                    <form onsubmit="verificarAccesoAdmin(event)">
+                        <input type="password" id="adminPassword" placeholder="Contraseña" class="admin-password-input" required>
+                        <button type="submit" class="btn-primary">Acceder</button>
+                    </form>
+                    
+                </div>
+            </div>
+            <div id="adminPanel" class="admin-panel" style="display:none;">
+            <div class="section-header">
+                <h2>Administración</h2>
+                <button class="btn-danger" onclick="cerrarSesionAdmin()">Cerrar Sesión</button>
+            </div>
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="equipos-admin">Equipos</button>
+                <button class="tab-btn" data-tab="tramites-admin">Trámites</button>
+                <button class="tab-btn" data-tab="promociones-admin">Promociones</button>
+                <button class="tab-btn" data-tab="papeleria-admin">Papelería</button>
+                <button class="tab-btn" data-tab="metas-admin">Metas</button>
+            </div>
+            
+            <!-- Admin Equipos -->
+            <div id="equipos-admin" class="admin-content active">
+                <button class="btn-primary" onclick="mostrarModalEquipo()">+ Agregar Equipo</button>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Características</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminEquiposList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Trámites -->
+            <div id="tramites-admin" class="admin-content">
+                <button class="btn-primary" onclick="mostrarModalTramite()">+ Agregar Trámite</button>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Costo</th>
+                                <th>Gasto</th>
+                                <th>Link</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTramitesList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Promociones -->
+            <div id="promociones-admin" class="admin-content">
+                <button class="btn-primary" onclick="mostrarModalPromocion()">+ Agregar Promoción</button>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Cantidad Mínima</th>
+                                <th>Precio por Hoja</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminPromocionesList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Papelería -->
+            <div id="papeleria-admin" class="admin-content">
+                <button class="btn-primary" onclick="mostrarModalProducto()">+ Agregar Producto</button>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Precio Venta</th>
+                                <th>Costo</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminPapeleriaList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Metas -->
+            <div id="metas-admin" class="admin-content">
+                <h3>🎯 Configuración de Metas Diarias</h3>
+                <p class="meta-description">Establece las metas diarias por mes para monitorear el desempeño del negocio</p>
+                
+                <div class="metas-grid">
+                    <div class="meta-card" data-mes="1">
+                        <h4>Enero</h4>
+                        <input type="number" id="metaEnero" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(1)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="2">
+                        <h4>Febrero</h4>
+                        <input type="number" id="metaFebrero" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(2)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="3">
+                        <h4>Marzo</h4>
+                        <input type="number" id="metaMarzo" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(3)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="4">
+                        <h4>Abril</h4>
+                        <input type="number" id="metaAbril" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(4)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="5">
+                        <h4>Mayo</h4>
+                        <input type="number" id="metaMayo" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(5)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="6">
+                        <h4>Junio</h4>
+                        <input type="number" id="metaJunio" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(6)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="7">
+                        <h4>Julio</h4>
+                        <input type="number" id="metaJulio" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(7)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="8">
+                        <h4>Agosto</h4>
+                        <input type="number" id="metaAgosto" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(8)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="9">
+                        <h4>Septiembre</h4>
+                        <input type="number" id="metaSeptiembre" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(9)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="10">
+                        <h4>Octubre</h4>
+                        <input type="number" id="metaOctubre" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(10)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="11">
+                        <h4>Noviembre</h4>
+                        <input type="number" id="metaNoviembre" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(11)">Guardar</button>
+                    </div>
+                    <div class="meta-card" data-mes="12">
+                        <h4>Diciembre</h4>
+                        <input type="number" id="metaDiciembre" class="meta-input" placeholder="$0.00" min="0" step="0.01">
+                        <button class="btn-primary btn-sm" onclick="guardarMeta(12)">Guardar</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Equipo -->
+    <div id="modalEquipo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalEquipoTitle">Iniciar Equipo</h3>
+                <button class="close" onclick="cerrarModal('modalEquipo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="equipoInfo"></div>
+                <div id="equipoControles"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Servicio Extra -->
+    <div id="modalServicioExtra" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agregar Servicio Extra</h3>
+                <button class="close" onclick="cerrarModal('modalServicioExtra')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formServicioExtra" onsubmit="agregarServicioExtraModal(event)">
+                    <input type="hidden" id="servicioEquipoId">
+                    
+                    <div class="form-group">
+                        <label>Tipo de Servicio</label>
+                        <select id="servicioTipo" onchange="cambiarTipoServicio()" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="tramite">Trámite</option>
+                            <option value="impresion">Impresión</option>
+                            <option value="escaneo">Escaneo</option>
+                            <option value="copia">Copia</option>
+                        </select>
+                    </div>
+
+                    <!-- Selector de Trámite -->
+                    <div id="servicioTramiteGroup" class="form-group" style="display: none;">
+                        <label>Seleccionar Trámite</label>
+                        <select id="servicioTramiteSelect" onchange="toggleTramitePersonalizadoEquipo()">
+                            <option value="">Seleccionar trámite...</option>
+                        </select>
+                    </div>
+
+                    <!-- Campos para trámite personalizado en equipos -->
+                    <div id="servicioTramitePersonalizadoGroup" style="display: none;">
+                        <div class="form-group">
+                            <label>Nombre del Trámite</label>
+                            <input type="text" id="servicioTramitePersonalizadoNombre" placeholder="Nombre del trámite">
+                        </div>
+                        <div class="form-group">
+                            <label>Precio de Venta</label>
+                            <input type="number" id="servicioTramitePersonalizadoPrecio" step="0.01" min="0" placeholder="Precio">
+                        </div>
+                        <div class="form-group">
+                            <label>Costo del Trámite</label>
+                            <input type="number" id="servicioTramitePersonalizadoCosto" step="0.01" min="0" placeholder="Costo (opcional)">
+                        </div>
+                    </div>
+
+                    <!-- Cantidad (para impresiones, escaneos, copias) -->
+                    <div id="servicioCantidadGroup" class="form-group" style="display: none;">
+                        <label>Cantidad de Hojas</label>
+                        <input type="number" id="servicioCantidad" min="1" value="1">
+                    </div>
+
+                    <div id="servicioTotalPreview" class="total-preview"></div>
+
+                    <button type="submit" class="btn-primary">Agregar Servicio</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Admin Equipo -->
+    <div id="modalAdminEquipo" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalAdminEquipoTitle">Agregar Equipo</h3>
+                <button class="close" onclick="cerrarModal('modalAdminEquipo')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formEquipo" onsubmit="guardarEquipo(event)">
+                    <input type="hidden" id="equipoId">
+                    <div class="form-group">
+                        <label>Nombre/ID del Equipo</label>
+                        <input type="text" id="equipoNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Características (opcional)</label>
+                        <textarea id="equipoCaracteristicas"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Trámite -->
+    <div id="modalTramite" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTramiteTitle">Agregar Trámite</h3>
+                <button class="close" onclick="cerrarModal('modalTramite')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formTramite" onsubmit="guardarTramite(event)">
+                    <input type="hidden" id="tramiteId">
+                    <div class="form-group">
+                        <label>Nombre del Trámite</label>
+                        <input type="text" id="tramiteNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Costo</label>
+                        <input type="number" id="tramiteCosto" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Gasto (opcional)</label>
+                        <input type="number" id="tramiteGasto" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Link de Referencia (opcional)</label>
+                        <input type="url" id="tramiteLink">
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Venta Trámite -->
+    <div id="modalVentaTramite" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Venta de Trámite</h3>
+                <button class="close" onclick="cerrarModal('modalVentaTramite')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formVentaTramite" onsubmit="registrarVentaTramite(event)">
+                    <div class="form-group">
+                        <label>Seleccionar Trámite</label>
+                        <select id="ventaTramiteSelect" onchange="toggleTramitePersonalizado()" required></select>
+                    </div>
+                    
+                    <!-- Campos para trámite personalizado -->
+                    <div id="tramitePersonalizadoGroup" style="display: none;">
+                        <div class="form-group">
+                            <label>Nombre del Trámite</label>
+                            <input type="text" id="tramitePersonalizadoNombre" placeholder="Nombre del trámite" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Precio de Venta</label>
+                            <input type="number" id="tramitePersonalizadoPrecio" step="0.01" min="0" placeholder="Precio" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Costo del Trámite</label>
+                            <input type="number" id="tramitePersonalizadoCosto" step="0.01" min="0" placeholder="Costo (opcional)">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="ventaTramiteCantidad" value="1" min="1" required onchange="calcularTotalTramite()">
+                    </div>
+                    <div id="ventaTramiteTotal" class="total-preview"></div>
+                    <button type="submit" class="btn-primary">Registrar Venta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Promoción -->
+    <div id="modalPromocion" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalPromocionTitle">Agregar Promoción</h3>
+                <button class="close" onclick="cerrarModal('modalPromocion')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formPromocion" onsubmit="guardarPromocion(event)">
+                    <input type="hidden" id="promocionId">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="promocionTipo" required>
+                            <option value="impresion">Impresión</option>
+                            <option value="escaneo">Escaneo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad Mínima</label>
+                        <input type="number" id="promocionCantidad" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio por Hoja</label>
+                        <input type="number" id="promocionPrecio" step="0.01" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Venta Impresión -->
+    <div id="modalVentaImpresion" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nueva Venta - Impresiones/Escaneos</h3>
+                <button class="close" onclick="cerrarModal('modalVentaImpresion')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formVentaImpresion" onsubmit="registrarVentaImpresion(event)">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="ventaImpresionTipo" onchange="mostrarOpcionesColor()" required>
+                            <option value="impresion">Impresión B/N</option>
+                            <option value="impresion-color">Impresión a Color</option>
+                            <option value="escaneo">Escaneo</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="colorCostGroup" style="display:none;">
+                        <label>Calidad de Impresión</label>
+                        <select id="ventaImpresionColorCosto" onchange="calcularTotalImpresion()">
+                            <option value="3">Calidad 1 - $3 por hoja</option>
+                            <option value="5">Calidad 2 - $5 por hoja</option>
+                            <option value="7">Calidad 3 - $7 por hoja</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad de Hojas</label>
+                        <input type="number" id="ventaImpresionCantidad" min="1" value="1" onchange="calcularTotalImpresion()" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="ventaImpresionAgregarEquipo" onchange="toggleEquipoSelect()">
+                            Agregar a un equipo
+                        </label>
+                    </div>
+                    <div class="form-group" id="equipoSelectGroup" style="display:none;">
+                        <label>Seleccionar Equipo</label>
+                        <select id="ventaImpresionEquipo"></select>
+                    </div>
+                    <div id="ventaImpresionTotal" class="total-preview"></div>
+                    <button type="submit" class="btn-primary">Registrar Venta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Producto -->
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalProductoTitle">Agregar Producto</h3>
+                <button class="close" onclick="cerrarModal('modalProducto')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formProducto" onsubmit="guardarProducto(event)">
+                    <input type="hidden" id="productoId">
+                    <div class="form-group">
+                        <label>Nombre del Producto</label>
+                        <input type="text" id="productoNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Precio de Venta</label>
+                        <input type="number" id="productoPrecio" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Costo</label>
+                        <input type="number" id="productoCosto" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad Disponible</label>
+                        <input type="number" id="productoCantidad" min="0" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Venta Papelería -->
+    <div id="modalVentaPapeleria" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Venta de Papelería</h3>
+                <button class="close" onclick="cerrarModal('modalVentaPapeleria')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formVentaPapeleria" onsubmit="registrarVentaPapeleria(event)">
+                    <div class="form-group">
+                        <label>Seleccionar Producto</label>
+                        <select id="ventaPapeleriaSelect" onchange="actualizarStockDisponible()" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="ventaPapeleriaCantidad" value="1" min="1" onchange="calcularTotalPapeleria()" required>
+                    </div>
+                    <div id="stockDisponible" class="info-text"></div>
+                    <div id="ventaPapeleriaTotal" class="total-preview"></div>
+                    <button type="submit" class="btn-primary">Registrar Venta</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gasto -->
+    <div id="modalGasto" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agregar Gasto</h3>
+                <button class="close" onclick="cerrarModal('modalGasto')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formGasto" onsubmit="guardarGasto(event)">
+                    <div class="form-group">
+                        <label>Concepto</label>
+                        <input type="text" id="gastoConcepto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto</label>
+                        <input type="number" id="gastoMonto" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="gastoCategoria" required>
+                            <option value="servicios">Servicios</option>
+                            <option value="compras">Compras</option>
+                            <option value="mantenimiento">Mantenimiento</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Limpiar Día -->
+    <div id="modalLimpiarDia" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Limpiar Datos del Día</h3>
+                <button class="close" onclick="cerrarModal('modalLimpiarDia')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-box">
+                    <p><strong>¡ADVERTENCIA!</strong></p>
+                    <p>Esta acción eliminará TODOS los datos del día actual:</p>
+                    <ul>
+                        <li>✗ Todas las ventas de trámites</li>
+                        <li>✗ Todas las ventas de impresiones/escaneos</li>
+                        <li>✗ Todas las ventas de papelería</li>
+                        <li>✗ Todas las sesiones de equipos (activas e inactivas)</li>
+                        <li>✗ Todos los gastos registrados</li>
+                    </ul>
+                    <p><strong>Esta acción NO se puede deshacer.</strong></p>
+                </div>
+                
+                <form id="formLimpiarDia" onsubmit="confirmarLimpiarDia(event)">
+                    <div class="form-group">
+                        <label>Para confirmar, ingresa la contraseña de administrador:</label>
+                        <input type="password" id="passwordLimpiarDia" placeholder="Contraseña" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="confirmarLimpiar" required>
+                            Confirmo que deseo eliminar todos los datos del día
+                        </label>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="cerrarModal('modalLimpiarDia')">Cancelar</button>
+                        <button type="submit" class="btn-danger">Limpiar Datos</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Corte Diario -->
+    <div id="modalCorte" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3>Corte Diario</h3>
+                <button class="close" onclick="cerrarModal('modalCorte')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="corteContenido"></div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="generarCorte()">Generar Corte</button>
+                    <button class="btn-secondary" id="btnExportarPDF" onclick="exportarPDF()" style="display:none;">Exportar PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cambio Diario -->
+    <div id="modalCambio" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💵 Agregar Cambio del Día</h3>
+                <button class="close" onclick="cerrarModal('modalCambio')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formCambio" onsubmit="guardarCambio(event)">
+                    <div class="form-group">
+                        <label>Monto del Cambio</label>
+                        <input type="number" id="montoCambio" step="0.01" min="100" max="200" placeholder="100.00" required>
+                        <small style="color: var(--text-secondary);">
+                            Este es el dinero que se deja como cambio para iniciar el día<br>
+                            <strong style="color: var(--warning);">Mínimo: $100.00 | Máximo: $200.00</strong>
+                        </small>
+                    </div>
+                    <button type="submit" class="btn-primary">Guardar Cambio</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- jsPDF para exportar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Chart.js para gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Notificaciones Toast -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay active">
+        <div class="loading-spinner"></div>
+        <p>Cargando...</p>
+    </div>
+
+    <!-- Pantalla de Bloqueo -->
+    <div id="lockScreen" class="lock-screen">
+        <div class="lock-content">
+            <div class="lock-icon">🔒</div>
+            <h2>STD TEC BITACORA</h2>
+            <p>Sistema Bloqueado</p>
+            <p>Ingresa la contraseña para desbloquear</p>
+            <form id="unlockForm" onsubmit="desbloquearSistema(event)">
+                <input 
+                    type="password" 
+                    id="unlockPassword" 
+                    class="lock-input" 
+                    placeholder="Contraseña" 
+                    autocomplete="off"
+                    autofocus
+                />
+                <button type="submit" class="btn-unlock">Desbloquear</button>
+            </form>
+            <div id="lockError" class="lock-error"></div>
+            <div class="lock-time" id="lockTime"></div>
+        </div>
+    </div>
+
+    <!-- Footer con Créditos -->
+    <footer class="footer-credits">
+        <div class="credits-content">
+            <div class="credits-info">
+                <p>© 2025 STD TEC - Sistema desarrollado por <strong>Alex Machuca</strong></p>
+                <p class="version">BITÁCORA V1.0 | Todos los derechos reservados</p>
+            </div>
+            <div class="footer-separator"></div>
+            <div class="footer-buttons">
+                <button class="footer-btn" onclick="abrirWebNegocio()" title="Sitio web del negocio">
+                    🌐 Web
+                </button>
+                <button class="footer-btn" onclick="abrirSistemaFolios()" title="Sistema de folios">
+                    📋 Folios
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- App JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>
